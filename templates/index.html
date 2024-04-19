@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kendek CNC Robot Production Output</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            margin-top: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .btn-primary:focus, .btn-primary.focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #343a40;
+            font-size: 24px;
+        }
+
+        h5 {
+            color: #343a40;
+            font-size: 18px;
+        }
+
+        p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .count {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .logo {
+            /* max-width: 150px; */
+            max-height: 100px;
+        }
+
+        /* Added CSS for iframe */
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* Aspect ratio 16:9 */
+        }
+        
+        .iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;    
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logos -->
+        <!-- <div class=" mb-4">
+            <img src="https://www.kendek.com/assets/images/logo-dark.png" alt="Logo 1" class="img-fluid mr-3 logo">
+            <img src="https://shinmastersolution.com/wp-content/uploads/2023/05/shinmaster-lg-120dpi.png" alt="Logo 2" class="img-fluid logo">
+        </div> -->
+
+        <h1 class="mt-5 mb-4">Kendek CNC Robot Production Output</h1>
+
+        <!-- Total count card -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="card-title">Total Count</h2>
+                <h3 class="card-text count" id="total_count">Loading...</h3>
+            </div>
+        </div>
+
+        <div class="row" id="robot_cards">
+            <!-- Robot count cards will be inserted here -->
+        </div>
+
+        <!-- <button id="update_btn" class="btn btn-primary btn-block">Update</button> -->
+        <p id="last_updated" style="text-align: center; color: #6c757d; font-size: 20px;"></p>
+
+        <!-- Updated iframe section with responsive container -->
+        <h2>Robot 2</h2>
+        <div class="iframe-container">
+            <iframe src="http://localhost:5080/WebRTCApp/play.html?id=pkLA2JvEN9SrclIR1713497359807" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+</body>
+</html>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            function fetchData() {
+                $.ajax({
+                    url: '/data',
+                    method: 'GET',
+                    success: function(data) {
+                        var totalCount = 0;
+                        $('#robot_cards').empty();
+                        $.each(data, function(robot_id, highest_total_count) {
+                            // Remove underscore and convert to uppercase
+                            var formattedRobotId = robot_id.replace(/_/g, ' ').toUpperCase();
+                            var card = '<div class="col-sm-6 col-md-4 col-lg-3">' +
+                                           '<div class="card">' +
+                                               '<div class="card-body">' +
+                                                   '<h5 class="card-title">Robot: ' + formattedRobotId + '</h5>' +
+                                                   '<p class="card-text">   Count: <span class="count">' + highest_total_count + '</span></p>' +
+                                               '</div>' +
+                                           '</div>' +
+                                       '</div>';
+                            $('#robot_cards').append(card);
+                            totalCount += parseInt(highest_total_count);
+                        });
+                        $('#total_count').text(totalCount); 
+
+                        var currentDate = new Date();
+                        var lastUpdatedTime = currentDate.toLocaleString();
+                        $('#last_updated').text("Last updated: " + lastUpdatedTime);
+                    }
+                });
+            }
+
+            // function fetchDataTimer(){
+            //     fetchData();
+
+            //     setInterval(fetchData, 5000)
+            // }
+
+            // fetchDataTimer();
+
+            $('#update_btn').click(function(){
+                fetchData();
+            });
+
+            // Initial fetch
+            fetchData();
+            
+            setInterval(function() 
+            {
+                console.log("Interval callback executing...");
+                fetchData();
+            }, 5000);
+
+        });
+    </script>
+</body>
+</html>
